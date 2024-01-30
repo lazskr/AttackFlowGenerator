@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Annotate Report{% endblock %}
+{% block head %}
+    <link rel="stylesheet" href="{% static 'annotation/annotator.min.css' %}">
+{% endblock %}
+{% block content %}
+    <main>
+        <h2>Annotatable Container:</h2>
+        <p id="content">
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+        </p>
+        <h2>Text has been extracted from uploaded PDF: Selected Report ID is {{ report_id }}</h2>
+        <pre>{{ text }}</pre>
+    </main>
+{% endblock %}
+{% block scripts %}
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="{% static 'annotation/annotator-full.min.js' %}"></script>
+    <script type="module" src="{% static 'annotation/annotation.js' %}"></script>
+    <script type="module">
+        import {
+            addAnnotationToLocalStorage,
+            deleteAnnotationFromLocalStorage,
+            updateAnnotationInLocalStorage
+        } from "{% static 'annotation/annotation.js' %}"
+
+        import { v4 as uuidv4 } from 'https://jspm.dev/uuid';
+
+        const tags = ['asset', 'attack-vector', 'malware'];
+        const colours = {
+            'asset': 'green',
+            'attack-vector': 'red',
+            'malware': 'blue'
+        };
+
+        // override behaviour when creating annotation to include uuid
+        Annotator.prototype.createAnnotation = function() {
+            var annotation;
+            annotation = { id: uuidv4() };
+            this.publish("beforeAnnotationCreated", [annotation]);
+            return annotation;
+        };
+
+        const updateHighlightColour = (annotation) => {
+            if (annotation.tags && annotation.highlights){
+                annotation.highlights.forEach(highlight => {
+                    highlight.style.backgroundColor = colours[annotation.tags[0]];
+                });
+            }
+        };
+
+        Annotator.Plugin.PredefinedTags = function (element) {
+            return {
+                pluginInit: function () {
+                    // update highlight colour on annotation creation
+                    this.annotator.subscribe('annotationCreated', updateHighlightColour);
+
+                    // when annotations load (eg on refresh), use tags to determine highlight colours
+                    this.annotator.subscribe('annotationsLoaded', (annotationsArray) => {
+                        annotationsArray.forEach(updateHighlightColour);
+                    });
+
+                    // when updating annotations, immediately display their new highlight colour
+                    this.annotator.subscribe('annotationUpdated', updateHighlightColour);
+
+                    // Adding predefined tags to the editor
+                    this.annotator.editor.addField({
+                        label: "Predefined Tags",
+                        load: function (field, annotation) {
+                            let checkboxHtml = tags.map(tag => {
+                                return `<input type="checkbox" value="${tag}" ${annotation.tags && annotation.tags.includes(tag) ? 'checked' : ''}> ${tag} <br>`;
+                            }).join("");
+                            field.innerHTML = checkboxHtml;
+                        },
+                        submit: function (field, annotation) {
+                            annotation.tags = [];
+                            tags.forEach(tag => {
+                                if (field.querySelector(`input[value="${tag}"]`).checked) {
+                                    annotation.tags.push(tag);
+                                }
+                            });
+                        }
+                    });
+                }
+            };
+        };
+
+        let annotations;
+        try {
+            annotations = JSON.parse(localStorage.getItem('annotations')) || [];
+        } catch (error) {
+            console.error("Error parsing annotations from localStorage:", error);
+            annotations = [];
+        }
+
+        const annotator = $('#content').annotator()
+                                    .annotator('setupPlugins', {}, {
+                                        Tags: true, // only enable tags plugin
+                                        Filter: false,
+                                        Unsupported: false,
+                                        Auth: false,
+                                        AnnotateItPermissions: false,
+                                        Store: false,
+                                    })
+                                    .annotator('addPlugin', 'PredefinedTags')
+                                    .data('annotator');
+
+        annotator.loadAnnotations(annotations);
+
+        annotator.subscribe('annotationCreated', addAnnotationToLocalStorage);
+        annotator.subscribe('annotationUpdated', updateAnnotationInLocalStorage);
+        annotator.subscribe('annotationDeleted', deleteAnnotationFromLocalStorage);
+    </script>
+{% endblock %}

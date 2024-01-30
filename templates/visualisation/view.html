@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+{% block title %}View AttackFlow{% endblock %}
+{% block content %}
+    <main>
+        <div style="display: flex; gap: 16px">
+            <div class="mermaid-container">
+                {% if mermaid %}
+                    {% if title %}<h1 class="flow-title">{{ title }}</h1>{% endif %}
+                    <script src='https://unpkg.com/panzoom@9.4.0/dist/panzoom.min.js'></script>
+                    <pre class="mermaid" id="mermaid">{{ mermaid }}</pre>
+                    <script>panzoom(document.querySelector('#mermaid'))</script>
+                    <script type="module">import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';</script>
+                {% else %}
+                    <p class="upload-prompt">Please provide JSON annotations for visualisation</p>
+                {% endif %}
+            </div>
+            <form method="post" id="annotations">
+                {% csrf_token %}
+                {% if tools %}
+                    <input type="file"
+                           id="upload-json"
+                           onChange="selectFile();"
+                           accept="application/json" />
+                {% endif %}
+                <textarea class="json-field"
+                          name="annotations"
+                          id="flow-data"
+                          form="annotations"
+                          autocomplete="off"
+                          autocorrect="off"
+                          autocapitalize="off"
+                          spellcheck="false"
+                          placeholder="{}"
+                          required>{{ json }}</textarea>
+                <input class="button" type="submit" value="Submit">
+            </form>
+        </div>
+    </main>
+    <style>
+        .mermaid-container {
+            border: 1px black solid;
+            height: 90vh;
+            width: 100%;
+            overflow: hidden;
+            background-color: #404243;
+        }
+        .flow-title {
+            background-color: black;
+            opacity: 0.7;
+            display: block;
+            position: absolute;
+            margin: 0;
+            padding: 8px;
+            z-index: 100;
+            max-width: 30%;
+            text-overflow: ellipsis;
+            overflow: hidden;
+            white-space: nowrap
+        }
+
+        .upload-prompt {
+            height: 100%;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center
+        }
+
+        .json-field {
+            height: 100%;
+            white-space: pre;
+            overflow-wrap: normal;
+            overflow-x: scroll
+        }
+
+        .edgeLabel {
+            background: transparent !important;
+        }
+
+        .label {
+            text-align: left !important;
+        }
+
+        .nodeLabel {
+            display: block;
+            margin: 8px;
+        }
+
+        rect {
+            stroke: none !important;
+        }
+
+        .node-head {
+            background-color: #637bc9;
+            padding: 16px;
+            border-radius: 8px 8px 0 0;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .node-body {
+            background-color: #1F1F1F;
+            padding: 16px;
+            border-radius: 0 0 8px 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .node-title {
+            font-weight: 900;
+            text-transform: none;
+            font-size: 22px;
+            margin: 0;
+        }
+
+        p {
+            font-size: 18px !important;
+            text-transform: none;
+            margin: 0;
+            font-weight: normal;
+            color: rgb(211, 207, 201) !important;
+        }
+
+        span {
+            color: rgb(211, 207, 201) !important;
+        }
+
+        .heading {
+            text-transform: uppercase;
+            font-weight: 700;
+            font-size: 14px;
+            color: rgba(211, 207, 201, 0.4) !important;
+        }
+
+        .other {
+            background-color: #616060 !important;
+        }
+    </style>
+    <script>
+    function selectFile() {
+        let annotations = document.querySelector("#upload-json").files[0];
+        let reader = new FileReader();
+        reader.readAsText(annotations, "UTF-8");
+        reader.onload = (e) => {
+            document.querySelector("#flow-data").value = e.target.result;
+            document.querySelector("#annotations").submit();
+        }
+    }
+    </script>
+{% endblock %}

@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}Select Report{% endblock %}
+{% block content %}
+    <main>
+        <h1>Select Report to Annotate</h1>
+        <form method="get" action="{% url 'annotation_interface' %}">
+            <select id="selected-report" name="report_id">
+                {% for report_id, report_name in report_list %}<option value="{{ report_id }}">{{ report_name }}</option>{% endfor %}
+            </select>
+            <input type="submit" value="Submit" class="button">
+        </form>
+    </main>
+{% endblock %}

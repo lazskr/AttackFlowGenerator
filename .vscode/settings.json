@@ -1,0 +1,12 @@
+{
+    "python.linting.flake8Args": ["--ignore=E501"],
+    "flake8.args": ["--ignore=E501"],
+    "files.exclude": {
+        "**/.git": true,
+        "**/.DS_Store": true,
+        "**/*.pyc": true,
+        "**/__pycache__": true,
+        "**/.ruff_cache": true
+    },
+    "python.analysis.typeCheckingMode": "basic"
+}

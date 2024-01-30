@@ -1,0 +1,33 @@
+default_language_version:
+    python: python3.11
+repos:
+    - repo: https://github.com/pre-commit/pre-commit-hooks
+      rev: v4.4.0
+      hooks:
+          - id: check-toml
+          - id: name-tests-test
+            args: [--django]
+    - repo: https://github.com/psf/black
+      rev: 23.7.0
+      hooks:
+          - id: black
+    - repo: https://github.com/pre-commit/mirrors-prettier
+      rev: v3.0.2
+      hooks:
+          - id: prettier
+            files: \.(js|ts|jsx|tsx|css|less|json|markdown|md|yaml|yml)$
+            exclude: ^static/annotation/annotator(-full)?\.min\.(js|css)$
+    - repo: https://github.com/Riverside-Healthcare/djLint
+      rev: v1.32.1
+      hooks:
+          - id: djlint-django
+            args: [--reformat]
+    - repo: https://github.com/astral-sh/ruff-pre-commit
+      rev: v0.0.286
+      hooks:
+          - id: ruff
+            args: [--fix, --exit-non-zero-on-fix]
+    - repo: https://github.com/Lucas-C/pre-commit-hooks
+      rev: v1.5.4
+      hooks:
+          - id: remove-crlf

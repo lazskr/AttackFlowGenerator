@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Update Report{% endblock %}
+{% block content %}
+    <main>
+        <h1>Update an incident report</h1>
+        <!-- upon submitting form, browser sends the inputted file to the server as part of multipart/form-data POST request  -->
+        <form method="post" enctype="multipart/form-data">
+            <!-- mandatory when adding forms  -->
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">Save</button>
+            <button type="submit" name="delete" class="danger">Delete</button>
+        </form>
+    </main>
+{% endblock %}

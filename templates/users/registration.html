@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Register{% endblock %}
+{% block content %}
+    <!-- Register  -->
+    <main>
+        <div>
+            <h1>Register</h1>
+            {% if messages %}
+                <div class="messages">
+                    {% for message in messages %}
+                        <b>
+                            <div {% if message.tags %}class="{{ message.tags }}"{% endif %}>{{ message }}</div>
+                        </b>
+                        <br>
+                    {% endfor %}
+                </div>
+            {% endif %}
+            <form method="POST">
+                {% csrf_token %}
+                {% for field in register_form %}
+                    {{ field.label_tag }} {{ field }}
+                    {% if field.name == "username" %}
+                        <p>Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.</p>
+                    {% endif %}
+                    {% if field.name == "password1" %}
+                        <ul>
+                            <li>Your password can’t be too similar to your other personal information.</li>
+                            <li>Your password must contain at least 8 characters.</li>
+                            <li>Your password can’t be a commonly used password.</li>
+                            <li>Your password can’t be entirely numeric.</li>
+                        </ul>
+                    {% endif %}
+                {% endfor %}
+                <button class="btn btn-primary" type="submit">Register</button>
+            </form>
+            <p>
+                Have an account? <a href="/users/login">login</a>
+            </p>
+        </div>
+    </main>
+{% endblock %}

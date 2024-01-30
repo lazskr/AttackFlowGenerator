@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% block title %}Report Details{% endblock %}
+{% block content %}
+    <main>
+        {% if report %}
+            <h1>{{ report.name }}</h1>
+            <p>
+                Author: {{ report.user.username }}
+                (<a href="mailto:{{ report.user.email }}">{{ report.user.email }}</a>)
+                <br>
+                Last changed:
+                <script>
+                        document.write(
+                            new Date("{{ report.last_updated.isoformat }}").toLocaleString()
+                        )
+                </script>
+            </p>
+            <div>
+                <a class="button" href="/media/{{ report.file }}" target="_blank">View document</a>
+            </div>
+            <br>
+            <h3>Annotations</h3>
+            <div id="annotation-container">
+                {% for annotation in report.annotation_set.all reversed %}
+                    <div class="annotation">
+                        <div>
+                            Version {{ forloop.revcounter }}
+                            <br>
+                            Uploaded at:
+                            <script>
+                                    document.write(
+                                        new Date("{{ annotation.upload_date.isoformat }}").toLocaleString()
+                                    )
+                            </script>
+                            <br>
+                            Verified: {{ annotation.verified }}
+                        </div>
+                        <a class="button" href="{% url 'annotation_view' annotation.id %}">
+                            {% if user.is_superuser and not annotation.verified %}
+                                View/verify annotations
+                            {% else %}
+                                View annotations
+                            {% endif %}
+                        </a>
+                        {% if annotation.verified %}
+                            <a class="button success"
+                               href="{% url 'visualise_view' annotation.id %}">Generate visualisation</a>
+                        {% endif %}
+                    </div>
+                {% empty %}
+                    There are no annotations submitted for this report.
+                {% endfor %}
+            </div>
+        {% else %}
+            <p>This report does not exist.</p>
+        {% endif %}
+    </main>
+    <style>
+        #annotation-container {
+            display: flex;
+            flex-direction: column;
+            align-items: start;
+            gap: 16px;
+        }
+
+        .annotation {
+            display: flex;
+            gap: 16px;
+            background-color: var(--bg_grey);
+            border: 1px solid var(--dark_grey);
+            padding: 16px;
+            border-radius: 4px;
+        }
+
+        .annotation > div {
+            width: 300px;
+        }
+    </style>
+{% endblock %}

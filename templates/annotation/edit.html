@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Annotate Report{% endblock %}
+{% block head %}
+    <link rel="stylesheet"
+          href="https://unpkg.com/pdfjs-dist@3.10.111/web/pdf_viewer.css">
+    <script src="https://unpkg.com/feather-icons"></script>
+{% endblock %}
+{% block content %}
+    <div id="app">
+        <div id="container">
+            <div id="annotation-header">
+                <span>Annotating: <b> {{ report.name }}</b></span>
+                <span style="width: 16px"></span>
+                <span class="button" title="Zoom out" type="zoom-out" onclick="zoomOut()"><i data-feather="zoom-out"></i></span>
+                <span class="button" title="Zoom in" type="zoom-in" onclick="zoomIn()"><i data-feather="zoom-in"></i></span>
+                <span class="button"
+                      title="Previous page"
+                      type="chevron-left"
+                      onclick="prevPage()"><i data-feather="chevron-left"></i></span>
+                <span class="button"
+                      title="Next page"
+                      type="chevron-right"
+                      onclick="nextPage()"><i data-feather="chevron-right"></i></span>
+                <div style="flex: 1"></div>
+                <button @click="saveAnnotations" :disabled="isSaving">Save annotations</button>
+            </div>
+            <div id="content">
+                <div id="pdf-container"></div>
+                <div id="properties">
+                    <!-- <pre>{{ objects }}</pre> -->
+                    <div>
+                        <input type="text">
+                        <i class="button"
+                           data-feather="edit-3"
+                           title="Pick text"
+                           type="edit-3"
+                           onclick="pick(this)"></i>
+                    </div>
+                    <div id="annotation-drop-down">
+                        <select v-model="selectedAnnotationId">
+                            <option value="" disabled hidden>Please select an annotation</option>
+                            <option v-if="annotations.length === 0" disabled>There are no annotations yet</option>
+                            <option v-for="annotation in annotations"
+                                    :value="annotation.id"
+                                    :key="annotation.id">[[ annotation.id ]]</option>
+                        </select>
+                    </div>
+                    <div v-if="JSON.stringify(tempAnnotation) !== '{}' "
+                         id="object-type-drop-down">
+                        <select v-model="selectedType">
+                            <option value="" disabled hidden>Please select an object type</option>
+                            <option v-for="(type, index) in objectTypes" :value="type" :key="index">[[ type ]]</option>
+                        </select>
+                    </div>
+                    <div v-if="JSON.stringify(tempAnnotation) !== '{}'"
+                         style="flex-direction: column">
+                        <div v-for="field in currentSchema"
+                             :key="field.id"
+                             style="display:flex;
+                                    flex-direction: column">
+                            <label :for="field.id">[[ field.label ]]</label>
+                            <input v-if="field.type === 'text'"
+                                   :name="field.id"
+                                   :id="field.id"
+                                   v-model="tempAnnotation[field.id]">
+                            <textarea v-else-if="field.type === 'textarea'"
+                                      :name="field.id"
+                                      :id="field.id"
+                                      v-model="tempAnnotation[field.id]"
+                                      rows="4"></textarea>
+                        </div>
+                        <button @click="handleSubmit" type="submit">Save</button>
+                        <button @click="cancelAnnotation">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <style scoped>
+        #container {
+            display: flex;
+            flex-direction: column;
+            height: calc(100vh - 52px);
+        }
+
+        #annotation-header {
+            display: flex;
+            align-items: center;
+            padding: 8px;
+            background-color: var(--bg_grey);
+        }
+
+        #content {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        #pdf-container {
+            position: relative;
+            flex: 1;
+            overflow: scroll;
+            text-align: center;
+            box-shadow: inset -32px 32px 32px -32px rgba(0, 0, 0, 0.2);
+            background-color: var(--black);
+        }
+
+        #sidebar {
+            height: 100%;
+            width: 400px;
+            background-color: var(--dark_grey);
+            overflow: scroll;
+        }
+
+        #properties {
+            overflow: scroll;
+            height: 100%;
+            width: 400px;
+            background-color: var(--dark_grey);
+        }
+
+        #properties > div {
+            display: flex;
+            gap: 16px;
+            padding: 16px;
+        }
+
+        #properties > div > input {
+            flex: 1;
+        }
+
+        .target {
+            border: 1px dashed var(--accent) !important;
+        }
+    </style>
+{% endblock %}
+{% block scripts %}
+    <script> feather.replace();</script>
+    <script src="https://unpkg.com/pdfjs-dist@3.10.111/build/pdf.min.js"></script>
+    {{ annotation|json_script:"annotation-data" }}
+    <script>
+        window.pdfUrl = "/media/{{ report.file }}";
+        window.reportName = "{{ report.name }}";
+        window.reportId = "{{ report.id }}";
+        window.annotation = JSON.parse(document.getElementById('annotation-data').textContent);
+    </script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue-feather-icons@5.1.0/dist/vue-feather-icons.min.js"></script>
+    <script src="{% static 'annotation/annotation-vue.js' %}"></script>
+    <script type="module" src="{% static 'annotation/pdfRenderer.js' %}"></script>
+{% endblock %}

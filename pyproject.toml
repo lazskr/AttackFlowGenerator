@@ -1,0 +1,20 @@
+[tool.ruff]
+exclude = [
+    "**/migrations/*.py"
+]
+# Enable pycodestyle (`E`), Pyflakes (`F`), isort (`I`) and pydocstyle (`D`)
+select = ["E", "F", "I", "D"]
+ignore = ["E501", "F401", "D203", "D205"]
+
+target-version = "py311"
+
+[tool.black]
+target-version = ['py311']
+exclude = '''
+/(
+  | migrations
+)/
+'''
+    
+[tool.djlint]
+profile="django"

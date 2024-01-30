@@ -1,0 +1,6 @@
+Django==4.2.4
+pre-commit==3.3.3
+python-docx==0.8.11
+reportlab==4.0.5
+pypdf==3.16.2
+stix2==3.0.1

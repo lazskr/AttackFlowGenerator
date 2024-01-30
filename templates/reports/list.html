@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}Reports{% endblock %}
+{% block content %}
+    <main>
+        <h1>Reports</h1>
+        {% if reports %}
+            <div id="report-list">
+                {% for report in reports %}
+                    <div>
+                        <h3>{{ report.name }}</h3>
+                        {% if user.is_superuser %}
+                            <p>
+                                Author: {{ report.user }}
+                                <br>
+                                Last changed:
+                                <script>
+                                    document.write(
+                                        new Date("{{ report.last_updated.isoformat }}").toLocaleString()
+                                    )
+                                </script>
+                            </p>
+                            <a class="button" href="{% url 'report_details' report.id %}">View</a>
+                            <a class="button" href="{% url 'report_update' report.id %}">Update</a>
+                        {% else %}
+                            <p>
+                                Last changed:
+                                <script>
+                                    document.write(
+                                        new Date("{{ report.last_updated.isoformat }}").toLocaleString()
+                                    )
+                                </script>
+                            </p>
+                            <a class="button" href="{% url 'report_details' report.id %}">View</a>
+                            <a class="button" href="{% url 'report_update' report.id %}">Update</a>
+                            <a class="button" href="{% url 'annotation_edit' report.id %}">Annotate</a>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p>There are no reports.</p>
+        {% endif %}
+    </main>
+    <style>
+        #report-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 16px;
+        }
+
+        #report-list > div {
+            background-color: var(--bg_grey);
+            border: 1px solid var(--dark_grey);
+            padding: 16px;
+            border-radius: 4px;
+        }
+    </style>
+{% endblock %}

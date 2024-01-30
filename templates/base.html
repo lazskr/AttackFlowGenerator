@@ -1,0 +1,58 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="{% static 'base.css' %}">
+        <link rel="stylesheet" href="{% static 'style.css' %}">
+        <script src="https://unpkg.com/feather-icons"></script>
+        {% block head %}{% endblock %}
+        <title>
+            {% block title %}{% endblock %}
+        </title>
+    </head>
+    <body>
+        <div class="navbar">
+            <a href="/">Home</a>
+            {% if user.is_authenticated %}
+                <div class="dropdown">
+                    Reports
+                    <div class="dropdown-content">
+                        <a href="{% url 'report_list' %}">View reports</a>
+                        <a href="{% url 'report_upload' %}">Upload report</a>
+                    </div>
+                </div>
+                <div class="dropdown">
+                    Tools
+                    <div class="dropdown-content">
+                        <a href="{% url 'visualise_test' %}">Visualisation</a>
+                    </div>
+                </div>
+            {% else %}
+                <div class="dropdown">
+                    Account
+                    <div class="dropdown-content">
+                        <a href="{% url 'user_register' %}">Register</a>
+                        <a href="{% url 'user_login' %}">Log in</a>
+                    </div>
+                </div>
+            {% endif %}
+            <span style="flex: 1"></span>
+            {% if user.is_authenticated %}
+                <span>Welcome {{ user.username }}</span>
+                <a href="{% url 'user_logout' %}">Log out</a>
+            {% endif %}
+            <img src="{% static 'logo.webp' %}" alt="logo">
+        </div>
+        {% block content %}{% endblock %}
+        {% block scripts %}{% endblock %}
+        <script>
+            feather.replace();
+            // Replace SVG title attributes for correct tooltips
+            Array.from(document.querySelectorAll('svg.feather[title]')).forEach((element) => {
+                element.insertAdjacentHTML('afterbegin', `<title>${element.attributes.title.value}</title>`);
+            });
+        </script>
+    </body>
+</html>

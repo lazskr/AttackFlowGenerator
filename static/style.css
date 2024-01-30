@@ -1,0 +1,81 @@
+main {
+    padding: 10px;
+    margin: 5px;
+}
+
+.navbar {
+    position: sticky;
+    top: 0;
+    z-index: 999;
+    display: flex;
+    background-color: var(--accent);
+    height: 52px;
+}
+
+.navbar > a,
+.navbar > div,
+.navbar > span {
+    display: flex;
+    align-items: center;
+    color: white;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+}
+
+.navbar > p.welcome-div {
+    color: white;
+}
+
+.navbar > a:hover,
+.navbar > div:hover {
+    background-color: var(--bg);
+    color: var(--fg);
+}
+
+.dropdown {
+    position: relative;
+    cursor: default;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    z-index: 999;
+    background-color: var(--bg);
+    top: 100%;
+    left: 0;
+    white-space: nowrap;
+    border: 1px solid var(--bg_grey);
+    border-top: none;
+}
+
+.dropdown-content a {
+    color: var(--fg);
+    text-decoration: none;
+    text-align: left;
+    padding: 10px 20px;
+    display: block;
+}
+
+.dropdown-content a:hover {
+    background-color: var(--bg_grey);
+}
+
+.dropdown:hover .dropdown-content {
+    display: block;
+}
+
+/*reports page css*/
+.reports-page .not-visible {
+    display: none;
+}
+.reports-page .progress-bar {
+    height: 30px;
+    background-color: green;
+    text-align: center;
+}
+
+.messages {
+    color: #dc143c;
+}
